@@ -1,4 +1,4 @@
-const Question = require('../models/questionModel');
+ const Question = require('../models/questionModel');
 
 exports.getQuestions = async (req, res) => {
   try {
@@ -31,6 +31,30 @@ exports.createQuestion = async (req, res) => {
     res.status(400).json({
       status: 'error',
       message: 'Error creating question',
+      error: error.message,
+    });
+  }
+};
+
+exports.submitAnswer = async (req, res) => {
+  try {
+    const { questionId, selectedAnswer } = req.body;
+    const question = await Question.findById(questionId);
+    if (!question) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Question not found',
+      });
+    }
+    const isCorrect = question.correctAnswer === selectedAnswer;
+    res.status(200).json({
+      status: 'success',
+      data: { isCorrect, correctAnswer: question.correctAnswer },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'error',
+      message: 'Error submitting answer',
       error: error.message,
     });
   }
