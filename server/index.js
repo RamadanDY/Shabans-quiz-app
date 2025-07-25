@@ -18,6 +18,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/quiz', require('./routes/questionRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));
 
 // Start server
 const PORT = process.env.PORT || 5000;

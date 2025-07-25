@@ -1,90 +1,124 @@
- import {
+ import { useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
-import { Button } from "@/components/ui/button"
+} from '@/components/ui/navigation-menu';
+import { Button } from '@/components/ui/button';
+import { AuthContext } from '../context/AuthContext';
 
+const Navbar = () => {
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-export default function App() {
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
-    <div className="p-7   flex justify-end"> {/* flex container to push nav to right */}
-      <NavigationMenu>
-        <NavigationMenuList>
-          {/* Item One */}
-                <Button>HOME</Button>
- 
-          {/* Item Two */}
-          <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-lg">Item Two</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid gap-3 p-4 w-[200px]">
-                <li>
-                  <NavigationMenuLink
-                    href="/link3"
-                    className="block px-2 py-1 rounded hover:bg-gray-100"
-                  >
-                    Link 3
-                  </NavigationMenuLink>
-                </li>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
+    <nav className="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-4 shadow-md">
+      <div className="max-w-6xl mx-auto flex justify-between items-center">
+        <Link to="/" className="text-2xl font-bold flex items-center space-x-2">
+          <span>Shaban's Maths Quiz</span>
+          <span className="text-xl opacity-70 font-math">π</span>
+        </Link>
+        <NavigationMenu>
+          <NavigationMenuList className="flex space-x-2">
+            <NavigationMenuItem>
+              <Button asChild className="bg-blue-700 hover:bg-blue-800 text-white">
+                <Link to="/">Home</Link>
+              </Button>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                asChild
+                className="text-lg px-4 py-2 hover:bg-blue-700 rounded-md transition-colors"
+              >
+                <Link to="/about">About</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            {user && (
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className="text-lg px-4 py-2 hover:bg-blue-700 rounded-md transition-colors"
+                >
+                  <Link to="/questions">Quiz</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
+            <NavigationMenuItem>
+              {user ? (
+                <>
+                  <NavigationMenuTrigger className="text-lg bg-blue-700 hover:bg-blue-800">
+                    {user.name}
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid gap-3 p-4 w-[200px] bg-white text-gray-800">
+                      <li>
+                        <NavigationMenuLink
+                          asChild
+                          className="block px-2 py-1 rounded hover:bg-gray-100"
+                        >
+                          <Link to="/profile">Profile</Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink
+                          asChild
+                          className="block px-2 py-1 rounded hover:bg-gray-100 cursor-pointer"
+                          onClick={handleLogout}
+                        >
+                          <span>Logout</span>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </>
+              ) : (
+                <>
+                  <NavigationMenuTrigger className="text-lg bg-blue-700 hover:bg-blue-800">
+                    Account
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid gap-3 p-4 w-[200px] bg-white text-gray-800">
+                      <li>
+                        <NavigationMenuLink
+                          asChild
+                          className="block px-2 py-1 rounded hover:bg-gray-100"
+                        >
+                          <Link to="/login">Login</Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink
+                          asChild
+                          className="block px-2 py-1 rounded hover:bg-gray-100"
+                        >
+                          <Link to="/register">Register</Link>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </>
+              )}
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
+        .font-math {
+          font-family: 'Roboto Slab', serif;
+        }
+      `}</style>
+    </nav>
+  );
+};
 
-          {/* Item Three */}
-          <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-lg">Item Three</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid gap-3 p-4 w-[200px]">
-                <li>
-                  <NavigationMenuLink
-                    href="/link4"
-                    className="block px-2 py-1 rounded hover:bg-gray-100"
-                  >
-                    Link 4
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink
-                    href="/link5"
-                    className="block px-2 py-1 rounded hover:bg-gray-100"
-                  >
-                    Link 5
-                  </NavigationMenuLink>
-                </li>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-
-          {/* Item Four */}
-          <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-lg">Profile</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid gap-3 p-4 w-[200px]">
-                <li>
-                  <NavigationMenuLink
-                    href="/link6"
-                    className="block px-2 py-1 rounded hover:bg-gray-100"
-                  >
-                    Link 6
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink
-                    href="/link7"
-                    className="block px-2 py-1 rounded hover:bg-gray-100"
-                  >
-                    Link 7
-                  </NavigationMenuLink>
-                </li>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
-    </div>
-  )
-}
+export default Navbar;

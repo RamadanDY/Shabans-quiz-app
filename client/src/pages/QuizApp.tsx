@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react';
+ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const QuizApp = () => {
+  const { user, logout } = useContext(AuthContext);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState('');
@@ -9,6 +13,7 @@ const QuizApp = () => {
   const [difficulty, setDifficulty] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const fetchQuestions = async () => {
     setLoading(true);
@@ -16,6 +21,7 @@ const QuizApp = () => {
     try {
       const response = await axios.get('http://localhost:5000/api/quiz/questions', {
         params: { difficulty: difficulty || undefined, limit: 10 },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setQuestions(response.data.data);
       setCurrentQuestionIndex(0);
@@ -38,10 +44,14 @@ const QuizApp = () => {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/api/quiz/submit', {
-        questionId: questions[currentQuestionIndex]._id,
-        selectedAnswer,
-      });
+      const response = await axios.post(
+        'http://localhost:5000/api/quiz/submit',
+        {
+          questionId: questions[currentQuestionIndex]._id,
+          selectedAnswer,
+        },
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
       setFeedback({
         isCorrect: response.data.data.isCorrect,
         message: response.data.data.isCorrect
@@ -59,15 +69,30 @@ const QuizApp = () => {
       setSelectedAnswer('');
       setFeedback(null);
     } else {
-      fetchQuestions(); // Reload questions when reaching the end
+      fetchQuestions();
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold text-center mb-6 text-blue-600">Maths Quiz</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-blue-600">Maths Quiz</h1>
+        {user && (
+          <div className="flex items-center space-x-4">
+            <span className="text-gray-600">Welcome, {user.name}</span>
+            <Button onClick={handleLogout} className="bg-red-600 hover:bg-red-700">
+              Logout
+            </Button>
+          </div>
+        )}
+      </div>
 
       <div className="mb-4">
         <label className="block text-gray-700 font-semibold mb-2">Select Difficulty:</label>
@@ -121,20 +146,20 @@ const QuizApp = () => {
       )}
 
       <div className="flex space-x-4">
-        <button
+        <Button
           onClick={handleSubmit}
           className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
           disabled={loading || !questions.length}
         >
           Submit Answer
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleNext}
           className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 disabled:opacity-50"
           disabled={loading || !questions.length}
         >
           Next Question
-        </button>
+        </Button>
       </div>
     </div>
   );
