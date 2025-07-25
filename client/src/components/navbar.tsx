@@ -1,4 +1,4 @@
- import { useContext } from 'react';
+import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   NavigationMenu,
@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { AuthContext } from '../context/AuthContext';
 
-const Navbar = () => {
+export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -119,6 +119,4 @@ const Navbar = () => {
       `}</style>
     </nav>
   );
-};
-
-export default Navbar;
+}

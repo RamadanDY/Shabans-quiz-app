@@ -9,7 +9,7 @@ const Home = () => {
   const { user } = useContext(AuthContext);
 
   const handleQuizClick = () => {
-    navigate('/questions');
+    navigate('/Topics');
   };
 
   const handleLoginClick = () => {
