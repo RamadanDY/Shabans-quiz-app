@@ -7,6 +7,7 @@ import QuizApp from '@/pages/QuizApp';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import Topics from '@/pages/Topics';
+import Results from '@/pages/Results';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -23,7 +24,15 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/Topics" element={<Topics />} />
+          <Route path="/topics" element={<Topics />} />
+          <Route
+            path="/results"
+            element={
+              <ProtectedRoute>
+                <Results />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/questions"
             element={

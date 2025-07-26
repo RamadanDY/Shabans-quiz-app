@@ -21,7 +21,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-4 shadow-md">
+    <nav className="bg-gradient-to-r  bg-gray-500 text-white p-4 shadow-md">
       <div className="max-w-6xl mx-auto flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold flex items-center space-x-2">
           <span>Shaban's Maths Quiz</span>
@@ -48,7 +48,7 @@ export default function Navbar() {
                   asChild
                   className="text-lg px-4 py-2 hover:bg-blue-700 rounded-md transition-colors"
                 >
-                  <Link to="/questions">Quiz</Link>
+                  <Link to="/Topics">Maths Quiz</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             )}

@@ -2,7 +2,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
-import image from "@/assets/boOHVtyN.jpeg";
+import image from "@/assets/t.jpg";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -22,11 +22,11 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex flex-col items-center justify-center relative overflow-hidden" style={{
-        backgroundImage: `url(${image})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}>
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex flex-col items-center justify-center relative overflow-hidden" >  
+    <div
+    className="absolute inset-0 bg-cover bg-center filter blur-lg"
+    style={{ backgroundImage: `url(${image})`, zIndex: 1 }}
+  />
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-10 left-10 text-6xl text-gray-300 font-math">π</div>
         <div className="absolute bottom-20 right-20 text-5xl text-gray-300 font-math">Σ</div>
@@ -35,10 +35,10 @@ const Home = () => {
       </div>
 
       <div className="text-center px-4 max-w-4xl z-10">
-        <h1 className="text-5xl md:text-6xl font-bold text-blue-800 mb-4 animate-fade-in">
+        <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 animate-fade-in">
           Welcome to Shaban's Maths Quiz
         </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-6 animate-slide-up">
+        <p className="text-3xl md:text-xl text-white mb-6 animate-slide-up">
           Challenge your math skills with fun and engaging quizzes! From basic arithmetic to advanced algebra, test your knowledge and learn something new.
         </p>
         {user ? (
