@@ -28,8 +28,9 @@ const Topics = () => {
   }, []);
 
   const handleTopicSelect = (topic) => {
-    setSelectedTopic(topic);
-  };
+  console.log('Selected topic:', topic);
+  setSelectedTopic(topic);
+};
 
   const handleStartQuiz = () => {
     if (selectedTopic) {

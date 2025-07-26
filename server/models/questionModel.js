@@ -3,37 +3,36 @@ const mongoose = require('mongoose');
 const questionSchema = new mongoose.Schema({
   questionText: {
     type: String,
-    required: true,
+    required: [true, 'Question text is required'],
+    trim: true,
   },
   options: {
     type: [String],
-    required: true,
+    required: [true, 'Options are required'],
     validate: {
       validator: function (arr) {
-        return arr.length === 4; // Ensures exactly 4 options
+        return arr.length === 4;
       },
-      message: 'Question must have exactly 4 options.',
+      message: 'Exactly 4 options are required',
     },
   },
   correctAnswer: {
     type: String,
-    required: true,
-    validate: {
-      validator: function (value) {
-        return this.options.includes(value); // Ensures correct answer is one of the options
-      },
-      message: 'Correct answer must be one of the provided options.',
-    },
+    required: [true, 'Correct answer is required'],
+    trim: true,
   },
   difficulty: {
     type: String,
     enum: ['Easy', 'Medium', 'Hard'],
-    required: true,
+    required: [true, 'Difficulty is required'],
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  topic: {
+    type: String,
+    required: [true, 'Topic is required'],
+    trim: true,
   },
+}, {
+  timestamps: true,
 });
 
 module.exports = mongoose.model('Question', questionSchema);

@@ -2,6 +2,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
+import image from "@/assets/boOHVtyN.jpeg";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -21,7 +22,11 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex flex-col items-center justify-center relative overflow-hidden" style={{
+        backgroundImage: `url(${image})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}>
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-10 left-10 text-6xl text-gray-300 font-math">π</div>
         <div className="absolute bottom-20 right-20 text-5xl text-gray-300 font-math">Σ</div>
