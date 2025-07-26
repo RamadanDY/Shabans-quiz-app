@@ -1,7 +1,7 @@
- // backend/routes/topicRoutes.js
-const express = require('express');
+ const express = require('express');
 const router = express.Router();
 const { getTopics } = require('../controller/topicController');
- router.get('/',   getTopics);
+
+router.get('/', getTopics);
 
 module.exports = router;
