@@ -1,4 +1,4 @@
- const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
 const register = async (req, res) => {
@@ -36,11 +36,11 @@ const register = async (req, res) => {
       error: error.message,
     });
   }
- };
+};
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     if (!email || !password) {
       return res.status(400).json({
         status: 'error',
@@ -52,6 +52,12 @@ const login = async (req, res) => {
       return res.status(401).json({
         status: 'error',
         message: 'Invalid email or password',
+      });
+    }
+    if (role && user.role !== role) {
+      return res.status(401).json({
+        status: 'error',
+        message: `Invalid role. You are registered as a ${user.role}, not a ${role}`,
       });
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -70,7 +76,7 @@ const login = async (req, res) => {
       error: error.message,
     });
   }
- };
+};
 
 const getMe = async (req, res) => {
   try {
@@ -95,15 +101,34 @@ const getMe = async (req, res) => {
       error: error.message,
     });
   }
- };
+};
+
+const getAllUsers = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Access denied. Admin role required.',
+      });
+    }
+    const users = await User.find().select('name email role createdAt');
+    res.status(200).json({
+      status: 'success',
+      data: users,
+    });
+  } catch (error) {
+    console.error('Get users error:', error.message);
+    res.status(400).json({
+      status: 'error',
+      message: 'Error fetching users',
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   register,
   login,
-  getMe
+  getMe,
+  getAllUsers,
 };
-
- 
-  
-
- 

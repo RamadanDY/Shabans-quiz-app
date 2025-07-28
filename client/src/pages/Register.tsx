@@ -1,4 +1,4 @@
- import { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('user'); // Added role state
   const [error, setError] = useState('');
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -14,9 +15,9 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const result = await register(name, email, password);
+    const result = await register(name, email, password, role); // Pass role to register
     if (result.success) {
-      navigate('/questions');
+      navigate(role === 'admin' ? '/admin' : '/questions'); // Redirect based on role
     } else {
       setError(result.message);
     }
@@ -58,6 +59,17 @@ const Register = () => {
               required
               minLength={6}
             />
+          </div>
+          <div>
+            <label className="block text-gray-700 font-semibold mb-2">Role</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
           <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
             Register

@@ -65,7 +65,7 @@ export default function Navbar() {
                           asChild
                           className="block px-2 py-1 rounded hover:bg-gray-100"
                         >
-                          <Link to="/profile">Profile</Link>
+                          <Link to="/Dashboard">Dashboard</Link>
                         </NavigationMenuLink>
                       </li>
                       <li>

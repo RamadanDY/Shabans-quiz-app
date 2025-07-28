@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('user'); // Added role state for student/teacher
   const [error, setError] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -13,9 +14,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const result = await login(email, password);
+    const result = await login(email, password, role); // Pass role to login
     if (result.success) {
-      navigate('/');
+      navigate(result.user.role === 'admin' ? '/admin' : '/'); // Redirect based on role
     } else {
       setError(result.message);
     }
@@ -47,6 +48,17 @@ const Login = () => {
               required
               minLength={6}
             />
+          </div>
+          <div>
+            <label className="block text-gray-700 font-semibold mb-2">Role</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="user">Student</option>
+              <option value="admin">Teacher</option>
+            </select>
           </div>
           <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
             Login

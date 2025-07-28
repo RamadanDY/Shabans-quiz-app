@@ -1,4 +1,4 @@
- import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from '@/components/navbar';
 import Home from '@/pages/Home';
@@ -9,10 +9,18 @@ import Register from '@/pages/Register';
 import Topics from '@/pages/Topics';
 import Results from '@/pages/Results';
 import Dashboard from '@/pages/Dashboard';
+import AdminDashboard from '@/pages/AdminDashboard'; // Added admin dashboard
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" state={{ from: window.location.pathname }} />;
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (!token) {
+    return <Navigate to="/login" state={{ from: window.location.pathname }} />;
+  }
+  if (requireAdmin && user.role !== 'admin') {
+    return <Navigate to="/" />;
+  }
+  return children;
 };
 
 function App() {
@@ -47,6 +55,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <QuizApp />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminDashboard />
               </ProtectedRoute>
             }
           />
