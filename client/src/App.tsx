@@ -9,15 +9,18 @@ import Register from '@/pages/Register';
 import Topics from '@/pages/Topics';
 import Results from '@/pages/Results';
 import Dashboard from '@/pages/Dashboard';
-import AdminDashboard from '@/pages/AdminDashboard'; // Added admin dashboard
+import AdminDashboard from '@/pages/AdminDashboard';
 
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  console.log('ProtectedRoute check:', { tokenExists: !!token, userRole: user.role, requireAdmin }); // Debug log
   if (!token) {
+    console.log('No token, redirecting to /login'); // Debug log
     return <Navigate to="/login" state={{ from: window.location.pathname }} />;
   }
   if (requireAdmin && user.role !== 'admin') {
+    console.log('Non-admin user, redirecting to /:', user.role); // Debug log
     return <Navigate to="/" />;
   }
   return children;

@@ -7,7 +7,7 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user'); // Added role state
+  const [role, setRole] = useState('user');
   const [error, setError] = useState('');
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -15,11 +15,14 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const result = await register(name, email, password, role); // Pass role to register
+    console.log('Register attempt:', { name, email, role }); // Debug log
+    const result = await register(name, email, password, role);
     if (result.success) {
-      navigate(role === 'admin' ? '/admin' : '/questions'); // Redirect based on role
+      console.log('Register success:', result.user); // Debug log
+      navigate(result.user.role === 'admin' ? '/admin' : '/questions');
     } else {
       setError(result.message);
+      console.error('Register failed:', result.message); // Debug log
     }
   };
 

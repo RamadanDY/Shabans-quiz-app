@@ -2,10 +2,10 @@ import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import * as api from './api'; // Adjust the import path as necessary
+import * as api from './api';
 
 const AdminDashboard = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, getAllUsers } = useContext(AuthContext);
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
@@ -24,7 +24,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const usersRes = await api.getAllUsers();
+        const usersRes = await getAllUsers();
         if (usersRes.status === 'success') setUsers(usersRes.data);
         const quizzesRes = await api.getQuizzes();
         if (quizzesRes.status === 'success') setQuizzes(quizzesRes.data);
@@ -35,7 +35,7 @@ const AdminDashboard = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [getAllUsers]);
 
   const handleLogout = () => {
     logout();
@@ -124,7 +124,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white p-8">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-blue-800 mb-6 text-center">Teacher Dashboard</h2>
+        <h2 className="text-3xl font-bold text-blue-800 mb-6 text-center">Admin Dashboard</h2>
         {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
         <div className="mb-8">
           <h3 className="text-2xl font-semibold text-gray-700 mb-4">Manage Users</h3>
@@ -142,7 +142,7 @@ const AdminDashboard = () => {
                 <tr key={user._id} className="hover:bg-gray-50">
                   <td className="p-2 border">{user.name}</td>
                   <td className="p-2 border">{user.email}</td>
-                  <td className="p-2 border">{user.role === 'admin' ? 'Teacher' : 'Student'}</td>
+                  <td className="p-2 border">{user.role}</td>
                   <td className="p-2 border">{new Date(user.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
