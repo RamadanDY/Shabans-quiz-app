@@ -29,6 +29,17 @@ export const register = (name, email, password, role) => {
     });
 };
 
+// export const register = (name, email, password, role) => {
+//   const payload = { name, email, password, role };
+//   console.log('Register function called with:', JSON.stringify(payload, null, 2));
+//   return api.post('/auth/register', payload)
+//     .then((res) => res.data)
+//     .catch((error) => {
+//       console.error('Register API error:', JSON.stringify(error.response?.data || error, null, 2));
+//       return error.response?.data || { status: 'error', message: error.message || 'Registration failed' };
+//     });
+// };
+
 export const login = async (email, password, role) => {
   try {
     console.log('Login function called with:', JSON.stringify({ email, password, role }, null, 2));
