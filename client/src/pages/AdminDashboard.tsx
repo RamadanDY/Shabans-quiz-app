@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import * as api from './api';
+import * as api from "./api"; 
 
 const AdminDashboard = () => {
   const { user, logout, getAllUsers } = useContext(AuthContext);
@@ -30,7 +30,8 @@ const AdminDashboard = () => {
         if (quizzesRes.status === 'success') setQuizzes(quizzesRes.data);
         const resultsRes = await api.getQuizResults();
         if (resultsRes.status === 'success') setResults(resultsRes.data);
-      } catch (err) {
+       } catch (err) {
+        console.log(err)
         setError('Failed to load data');
       }
     };

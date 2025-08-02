@@ -1,7 +1,7 @@
  import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -91,10 +91,11 @@ export const createQuiz = async (quizData) => {
     console.log('CreateQuiz API response:', JSON.stringify(response.data, null, 2));
     return response.data;
   } catch (error) {
-    console.error('CreateQuiz API error:', JSON.stringify(error.response?.data || error, null, 2));
+    console.error('CreateQuiz API error:', error.response?.status, error.response?.data);
     return error.response?.data || { status: 'error', message: 'Failed to create quiz' };
   }
 };
+
 
 export const updateQuiz = async (id, quizData) => {
   try {

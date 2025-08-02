@@ -11,6 +11,7 @@ import Results from '@/pages/Results';
 import Dashboard from '@/pages/Dashboard';
 import AdminDashboard from '@/pages/AdminDashboard';
 
+
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -61,18 +62,11 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
+          {/* 🔓 Unprotected Admin Route */}
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </Router>
     </AuthProvider>
   );
 }
-
 export default App;

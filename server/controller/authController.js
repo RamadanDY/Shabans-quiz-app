@@ -1,7 +1,10 @@
+const express = require('express');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
- 
+const router = express.Router();
+
 const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -51,8 +54,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
-    console.log('Login request:', JSON.stringify({ email, role }, null, 2));
+    const { email, password } = req.body;
+    console.log('Login request:', JSON.stringify({ email }, null, 2));
     if (!email || !password) {
       console.log('Missing required fields:', { email, password });
       return res.status(400).json({
@@ -66,13 +69,6 @@ const login = async (req, res) => {
       return res.status(401).json({
         status: 'error',
         message: 'Invalid email or password',
-      });
-    }
-    if (role && user.role !== role) {
-      console.log('Role mismatch:', { email, userRole: user.role, requestedRole: role });
-      return res.status(401).json({
-        status: 'error',
-        message: `Invalid role. You are registered as a ${user.role}, not a ${role}`,
       });
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
