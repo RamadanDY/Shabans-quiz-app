@@ -74,16 +74,16 @@ export const getAllUsers = async () => {
   }
 };
 
-export const getQuizzes = async () => {
-  try {
-    const response = await api.get('/quiz/quizzes');
-    console.log('GetQuizzes API response:', JSON.stringify(response.data, null, 2));
-    return response.data;
-  } catch (error) {
-    console.error('GetQuizzes API error:', JSON.stringify(error.response?.data || error, null, 2));
-    return error.response?.data || { status: 'error', message: 'Failed to fetch quizzes' };
-  }
-};
+// export const getQuizzes = async () => {
+//   try {
+//     const response = await api.get('/quiz/quizzes');
+//     console.log('GetQuizzes API response:', JSON.stringify(response.data, null, 2));
+//     return response.data;
+//   } catch (error) {
+//     console.error('GetQuizzes API error:', JSON.stringify(error.response?.data || error, null, 2));
+//     return error.response?.data || { status: 'error', message: 'Failed to fetch quizzes' };
+//   }
+// };
 
 export const createQuiz = async (quizData) => {
   try {

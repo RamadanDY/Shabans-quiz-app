@@ -9,7 +9,7 @@ import Register from '@/pages/Register';
 import Topics from '@/pages/Topics';
 import Results from '@/pages/Results';
 import Dashboard from '@/pages/Dashboard';
-import AdminDashboard from '@/pages/AdminDashboard';
+import CreateQuiz from '@/pages/CreateQuiz';
 
 
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -63,7 +63,7 @@ function App() {
             }
           />
           {/* 🔓 Unprotected Admin Route */}
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/CreateQuiz" element={<CreateQuiz />} />
         </Routes>
       </Router>
     </AuthProvider>
