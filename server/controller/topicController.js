@@ -1,5 +1,4 @@
- // backend/controllers/topicController.js
-const Topic = require('../models/topicModel');
+ const Topic = require('../models/topicModel');
 
 // @desc    Get all topics
 // @route   GET /api/topics
@@ -16,22 +15,35 @@ const getTopics = async (req, res) => {
 // @desc    Create new topic
 // @route   POST /api/topics
 // @access  Private
-const createTopic = async (req, res) => {
+ const createTopic = async (req, res) => {
   try {
-    const { name } = req.body;
+    console.log('🔥 Incoming request body:', req.body); // Add this
+
+    const { name, description } = req.body;
 
     if (!name || typeof name !== 'string') {
       return res.status(400).json({ message: 'Topic name is required and must be a string' });
     }
 
-    const topic = await Topic.create({ name });
+    if (!description || typeof description !== 'string') {
+      return res.status(400).json({ message: 'Topic description is required and must be a string' });
+    }
+
+    const topic = await Topic.create({ name, description });
     res.status(201).json({ message: 'Topic created successfully', data: topic });
-  } catch (error) {
-    res.status(400).json({ message: 'Error creating topic', error: error.message });
-  }
+  } 
+   catch (error) {
+  console.error('❌ Error creating topic:', error); // Show full error stack in terminal
+
+  res.status(400).json({
+    message: 'Error creating topic - backend',
+    error: error.message || error,
+  });
+} 
 };
 
 module.exports = {
   getTopics,
   createTopic,
 };
+ 
