@@ -7,7 +7,7 @@ const {
 } = require('../controller/quizController'); // ✅ Make sure this path is correct
 
 router.post('/quizzes', createQuiz); // ✅ Handler must be a function
-// router.get('/quizzes', getAllQuizzes); // ✅ Same here
-// router.get('/quizzes/:id', getQuizById); // ✅ And here
+router.get('/quizzes', getAllQuizzes); // ✅ Same here
+router.get('/quizzes/:id', getQuizById); // ✅ And here
 
 module.exports = router;

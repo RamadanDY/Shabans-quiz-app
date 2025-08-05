@@ -26,7 +26,7 @@ const QuizApp = () => {
       setLoading(true);
       setError('');
       try {
-        const response = await axios.get('http://localhost:5000/api/quiz/questions', {
+        const response = await axios.get('http://localhost:5000/api/quiz', {
           params: { topic, limit: 10 },
         });
         console.log('Questions API response:', response.data);
