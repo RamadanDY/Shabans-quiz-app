@@ -1,129 +1,262 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const CreateTopicForm = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    createdBy: '',
-  });
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+const CreateQuizForm = () => {
+  const location = useLocation();
   const navigate = useNavigate();
+  const { topicId, topicName, topicDescription } = location.state || {};
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setMessage('');
+  const [title, setTitle] = useState('');
+  const [timeLimit, setTimeLimit] = useState('');
+  const [availableFrom, setAvailableFrom] = useState('');
+  const [availableUntil, setAvailableUntil] = useState('');
+  const [questions, setQuestions] = useState([
+    {
+      questionText: '',
+      options: ['', '', '', ''],
+      correctAnswer: ''
+    }
+  ]);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleQuestionChange = (index, field, value) => {
+    const updatedQuestions = [...questions];
+    if (field === 'options') {
+      updatedQuestions[index].options = [...updatedQuestions[index].options];
+      updatedQuestions[index].options[value.optionIndex] = value.optionValue;
+    } else {
+      updatedQuestions[index][field] = value;
+    }
+    setQuestions(updatedQuestions);
     setError('');
+    setMessage('');
+  };
+
+  const addQuestion = () => {
+    setQuestions([
+      ...questions,
+      {
+        questionText: '',
+        options: ['', '', '', ''],
+        correctAnswer: ''
+      }
+    ]);
+  };
+
+  const removeQuestion = (index) => {
+    if (questions.length > 1) {
+      const updatedQuestions = questions.filter((_, i) => i !== index);
+      setQuestions(updatedQuestions);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
-      setError('Topic name is required');
+
+    // Client-side validation
+    if (!title.trim()) {
+      setError('Quiz title is required');
       return;
+    }
+    if (!timeLimit || parseInt(timeLimit) < 1) {
+      setError('Time limit must be at least 1 minute');
+      return;
+    }
+    if (!topicId) {
+      setError('Topic ID is required');
+      return;
+    }
+    if (questions.length === 0) {
+      setError('At least one question is required');
+      return;
+    }
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      if (!q.questionText.trim()) {
+        setError(`Question ${i + 1} text is required`);
+        return;
+      }
+      if (q.options.some(opt => !opt.trim()) || q.options.length !== 4) {
+        setError(`Question ${i + 1} must have exactly 4 non-empty options`);
+        return;
+      }
+      if (!q.correctAnswer.trim() || !q.options.includes(q.correctAnswer)) {
+        setError(`Question ${i + 1} correct answer must be one of the options`);
+        return;
+      }
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/topics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      const response = await axios.post('http://localhost:5000/api/quiz', {
+        title,
+        topic: topicId,
+        timeLimit: parseInt(timeLimit),
+        availableFrom: availableFrom || null,
+        availableUntil: availableUntil || null,
+        isActive: true,
+        questions
       });
 
-      const result = await response.json();
-      if (response.ok) {
-        setMessage('Topic created successfully!');
-        setFormData({ name: '', description: '', createdBy: '' });
+      setMessage('Quiz created successfully!');
+      setTitle('');
+      setTimeLimit('');
+      setAvailableFrom('');
+      setAvailableUntil('');
+      setQuestions([{ questionText: '', options: ['', '', '', ''], correctAnswer: '' }]);
+      setTimeout(() => navigate('/quizzes'), 1000);
+    } catch (error) {
+      console.error('Error creating quiz:', {
+        message: error.message,
+        response: error.response ? {
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers
+        } : null,
+        request: error.request ? 'No response received from server' : null
+      });
 
-        // Redirect to CreateQuiz with topicId and topicName
-        setTimeout(() => {
-          navigate('/CreateQuiz', {
-            state: {
-              topicId: result.data._id, // Ensure _id is from response.data
-              topicName: result.data.name,
-              topicDescription: result.data.description
-            }
-          });
-        }, 1000);
+      let errorMessage = 'Error creating quiz. Please try again.';
+      if (error.response) {
+        const { status, data } = error.response;
+        if (status === 400) {
+          errorMessage = data.message || 'Invalid quiz data. Please check your inputs.';
+        } else if (status === 404) {
+          errorMessage = data.message || 'Topic not found. Please select a valid topic.';
+        } else if (status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          errorMessage = data.message || `Unexpected error (status: ${status}).`;
+        }
+      } else if (error.request) {
+        errorMessage = 'Unable to reach the server. Please check your network connection.';
       } else {
-        console.error('Error creating topic:', {
-          message: result.message,
-          status: response.status,
-          data: result
-        });
-        setError(result.message || 'Failed to create topic');
+        errorMessage = `Error: ${error.message}`;
       }
-    } catch (err) {
-      console.error('Error creating topic:', {
-        message: err.message,
-        request: err.request ? 'No response received from server' : null
-      });
-      setError('An error occurred while creating the topic. Please check your network connection.');
+      setError(errorMessage);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Create a New Topic</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
+      <h2 className="text-2xl font-bold mb-4 text-gray-800">Create Quiz for Topic</h2>
+      <p className="mb-2"><strong>Topic:</strong> {topicName || 'Not selected'}</p>
+      <p className="mb-6 text-gray-600">{topicDescription || 'No description'}</p>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            Topic Name <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-semibold mb-1 text-gray-700">Quiz Title <span className="text-red-500">*</span></label>
           <input
             type="text"
-            name="name"
-            id="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="e.g., General Knowledge"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="e.g., JavaScript Basics Quiz"
             required
           />
         </div>
+
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-            Description
-          </label>
-          <textarea
-            name="description"
-            id="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="e.g., A collection of trivia questions"
-            rows={4}
-            maxLength={500}
-          />
-        </div>
-        <div>
-          <label htmlFor="createdBy" className="block text-sm font-medium text-gray-700">
-            Created By (User ID, optional)
-          </label>
+          <label className="block text-sm font-semibold mb-1 text-gray-700">Time Limit (in minutes) <span className="text-red-500">*</span></label>
           <input
-            type="text"
-            name="createdBy"
-            id="createdBy"
-            value={formData.createdBy}
-            onChange={handleChange}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="e.g., 60d21b4667d0d8992e610c86"
+            type="number"
+            value={timeLimit}
+            onChange={(e) => setTimeLimit(e.target.value)}
+            className="w-full border px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="e.g., 15"
+            required
           />
         </div>
+
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold mb-1 text-gray-700">Available From</label>
+            <input
+              type="datetime-local"
+              value={availableFrom}
+              onChange={(e) => setAvailableFrom(e.target.value)}
+              className="w-full border px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-sm font-semibold mb-1 text-gray-700">Available Until</label>
+            <input
+              type="datetime-local"
+              value={availableUntil}
+              onChange={(e) => setAvailableUntil(e.target.value)}
+              className="w-full border px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold mb-2 text-gray-800">Questions</h3>
+          {questions.map((question, index) => (
+            <div key={index} className="border p-4 mb-4 rounded-md shadow-sm">
+              <label className="block text-sm font-semibold mb-1 text-gray-700">Question {index + 1} <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                value={question.questionText}
+                onChange={(e) => handleQuestionChange(index, 'questionText', e.target.value)}
+                className="w-full border px-3 py-2 mb-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="e.g., What does `typeof null` return in JavaScript?"
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                {question.options.map((option, optionIndex) => (
+                  <input
+                    key={optionIndex}
+                    type="text"
+                    value={option}
+                    onChange={(e) => handleQuestionChange(index, 'options', { optionIndex, optionValue: e.target.value })}
+                    className="border px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder={`Option ${optionIndex + 1}`}
+                  />
+                ))}
+              </div>
+
+              <input
+                type="text"
+                value={question.correctAnswer}
+                onChange={(e) => handleQuestionChange(index, 'correctAnswer', e.target.value)}
+                className="w-full border px-3 py-2 mt-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Correct Answer (must match one option)"
+              />
+
+              {questions.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeQuestion(index)}
+                  className="text-red-500 mt-2 hover:underline text-sm"
+                >
+                  Remove Question
+                </button>
+              )}
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={addQuestion}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Add Question
+          </button>
+        </div>
+
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {message && <p className="text-green-500 text-sm">{message}</p>}
+
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="w-full bg-green-600 text-white px-6 py-3 rounded-md font-bold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
-          Create Topic
+          Submit Quiz
         </button>
       </form>
     </div>
   );
 };
 
-export default CreateTopicForm;
+export default CreateQuizForm;
