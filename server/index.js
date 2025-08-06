@@ -5,7 +5,7 @@ const authRoutes = require('./routes/authRoutes');
 const questionRoutes = require('./routes/questionRoutes');
 const topicRoutes = require('./routes/topicRoutes');
 const quizResultRoutes = require('./routes/quizResultRoutes');
-const quizRoutes = require('./routes/quizRoutes'); // Added quiz routes
+const createQuizRoutes = require('./routes/createQuizRoutes'); // Added quiz routes
 const cors = require('cors');
 
 dotenv.config();
@@ -26,10 +26,10 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', authRoutes);
-app.use('/api/quiz', questionRoutes);
+app.use('/api', questionRoutes);
 app.use('/api/topics', topicRoutes);
 app.use('/api/quiz', quizResultRoutes);
-app.use('/api/quiz', quizRoutes); // Added quiz routes
+app.use('/api/quiz', createQuizRoutes); // Added quiz routes
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

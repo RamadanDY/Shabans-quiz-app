@@ -28,7 +28,7 @@ const questionSchema = new mongoose.Schema({
   },
   topic: {
     type: String,
-    required: [true, 'Topic is required'],
+    required: [true, 'Topic is required❌ '],
     trim: true,
   },
 }, {

@@ -1,201 +1,199 @@
-
-
- import React, { useState } from 'react';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const CreateQuiz = () => {
-  const [topicName, setTopicName] = useState('');
-  const [topicDescription, setTopicDescription] = useState('');
-  const [title, setTitle] = useState('');
-  const [questions, setQuestions] = useState([
-    { questionText: '', options: ['', '', '', ''], correctAnswer: '' }
-  ]);
-  const [timeLimit, setTimeLimit] = useState('');
-  const [message, setMessage] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { topicId, topicName, topicDescription } = location.state || {};
 
-  const handleAddQuestion = () => {
+  const [title, setTitle] = useState('');
+  const [timeLimit, setTimeLimit] = useState('');
+  const [availableFrom, setAvailableFrom] = useState('');
+  const [availableUntil, setAvailableUntil] = useState('');
+  const [questions, setQuestions] = useState([
+    {
+      questionText: '',
+      options: ['', '', '', ''],
+      correctAnswer: ''
+    }
+  ]);
+
+  const handleQuestionChange = (index, field, value) => {
+    const updatedQuestions = [...questions];
+    if (field === 'options') {
+      updatedQuestions[index].options = [...updatedQuestions[index].options];
+      updatedQuestions[index].options[value.optionIndex] = value.optionValue;
+    } else {
+      updatedQuestions[index][field] = value;
+    }
+    setQuestions(updatedQuestions);
+  };
+
+  const addQuestion = () => {
     setQuestions([
       ...questions,
-      { questionText: '', options: ['', '', '', ''], correctAnswer: '' }
+      {
+        questionText: '',
+        options: ['', '', '', ''],
+        correctAnswer: ''
+      }
     ]);
   };
 
-  const handleQuestionTextChange = (index, value) => {
-    const updated = [...questions];
-    updated[index].questionText = value;
-    setQuestions(updated);
-  };
-
-  const handleOptionChange = (qIndex, optIndex, value) => {
-    const updated = [...questions];
-    updated[qIndex].options[optIndex] = value;
-    setQuestions(updated);
-  };
-
-  const handleCorrectAnswerChange = (index, value) => {
-    const updated = [...questions];
-    updated[index].correctAnswer = value;
-    setQuestions(updated);
+  const removeQuestion = (index) => {
+    const updatedQuestions = questions.filter((_, i) => i !== index);
+    setQuestions(updatedQuestions);
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const token = localStorage.getItem('token');
-  const userId = localStorage.getItem('userId'); // 👈 make sure you stored this at login
+    e.preventDefault();
 
-  try {
-    const quizPayload = {
-      title,
-      topic: {
-        name: topicName,
-        description: topicDescription,
-      },
-      questions,
-      timeLimit,
-      isActive: true,
-      availableFrom: new Date().toISOString(),
-      availableUntil: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-      createdBy: userId, // ✅ include this line
-    };
+    // Client-side validation
+    if (!title.trim()) {
+      alert('Quiz title is required');
+      return;
+    }
+    if (!timeLimit || parseInt(timeLimit) < 1) {
+      alert('Time limit must be at least 1 minute');
+      return;
+    }
+    if (!topicId) {
+      alert('Topic ID is required');
+      return;
+    }
 
-    await axios.post('http://localhost:5000/api/quiz/quizzes', quizPayload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const response = await axios.post('http://localhost:5000/api/quiz/question', {
+        title,
+         topic: topicId,topicName, // Send only topicId, not the full topic object
+        timeLimit: parseInt(timeLimit), // Ensure number type
+        availableFrom: availableFrom || null,
+        availableUntil: availableUntil || null,
+        isActive: true,
+        questions
+      });
 
-    setMessage('✅ Quiz successfully created!');
-    setTitle('');
-    setTopicName('');
-    setTopicDescription('');
-    setQuestions([{ questionText: '', options: ['', '', '', ''], correctAnswer: '' }]);
-    setTimeLimit('');
-  } catch (err) {
-    const errorMessage =
-      err.response?.data?.message ||
-      err.response?.data?.error ||
-      err.message ||
-      'Unknown error occurred';
+      alert('Quiz created successfully!');
+      navigate('/quizzes');
+    } catch (error) {
+      console.error('Error creating quiz:', {
+        message: error.message,
+        response: error.response ? {
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers
+        } : null,
+        request: error.request ? 'No response received from server' : null
+      });
 
-    setMessage(`❌ Failed to create quiz: ${errorMessage}`);
-  }
-};
+      let errorMessage = 'Error creating quiz. Please try again.';
+      if (error.response) {
+        const { status, data } = error.response;
+        if (status === 400) {
+          errorMessage = data.message || 'Invalid quiz data. Please check your inputs.';
+        } else if (status === 404) {
+          errorMessage = data.message || 'Topic not found. Please select a valid topic.❌ ';
+        } else if (status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          errorMessage = data.message || `Unexpected error (status: ${status}).`;
+        }
+      } else if (error.request) {
+        errorMessage = 'Unable to reach the server. Please check your network connection.';
+      } else {
+        errorMessage = `Error: ${error.message}`;
+      }
 
+      alert(errorMessage);
+    }
+  };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Create New Quiz</h2>
-
-      {message && (
-        <p
-          className={`mb-4 p-3 rounded ${
-            message.includes('success') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-          }`}
-        >
-          {message}
-        </p>
-      )}
+    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
+      <h2 className="text-2xl font-bold mb-4">Create Quiz for Topic</h2>
+      <p className="mb-2"><strong>Topic:</strong> {topicName}</p>
+      <p className="mb-6 text-gray-600">{topicDescription}</p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Topic Name</label>
-          <input
-            type="text"
-            value={topicName}
-            onChange={(e) => setTopicName(e.target.value)}
-            required
-            className="w-full p-2 border rounded-md"
-            placeholder="Enter topic name"
-          />
+          <label className="block font-semibold mb-1">Quiz Title</label>
+          <input type="text" className="w-full border px-3 py-2 rounded" value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Topic Description</label>
-              <textarea
-          value={topicDescription}
-          onChange={(e) => setTopicDescription(e.target.value)}
-          required
-          className="w-full p-2 border rounded-md"
-          placeholder="Enter topic description"
-        />
+          <label className="block font-semibold mb-1">Time Limit (in minutes)</label>
+          <input type="number" className="w-full border px-3 py-2 rounded" value={timeLimit} onChange={(e) => setTimeLimit(e.target.value)} required />
+        </div>
+
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <label className="block font-semibold mb-1">Available From</label>
+            <input type="datetime-local" className="w-full border px-3 py-2 rounded" value={availableFrom} onChange={(e) => setAvailableFrom(e.target.value)} />
+          </div>
+          <div className="flex-1">
+            <label className="block font-semibold mb-1">Available Until</label>
+            <input type="datetime-local" className="w-full border px-3 py-2 rounded" value={availableUntil} onChange={(e) => setAvailableUntil(e.target.value)} />
+          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Quiz Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full p-2 border rounded-md"
-            placeholder="Enter quiz title"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Time Limit (minutes)</label>
-          <input
-            type="number"
-            value={timeLimit}
-            onChange={(e) => setTimeLimit(e.target.value)}
-            required
-            className="w-full p-2 border rounded-md"
-            placeholder="Enter time limit"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Questions</label>
-          {questions.map((q, index) => (
-            <div key={index} className="mb-4 border p-3 rounded-md bg-gray-50">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Question {index + 1}</label>
+          <h3 className="text-lg font-semibold mb-2">Questions</h3>
+          {questions.map((question, index) => (
+            <div key={index} className="border p-4 mb-4 rounded">
+              <label className="block font-semibold mb-1">Question {index + 1}</label>
               <input
                 type="text"
-                value={q.questionText}
-                onChange={(e) => handleQuestionTextChange(index, e.target.value)}
-                required
-                className="w-full p-2 border rounded-md mb-2"
+                className="w-full border px-3 py-2 mb-2 rounded"
                 placeholder="Enter question text"
+                value={question.questionText}
+                onChange={(e) => handleQuestionChange(index, 'questionText', e.target.value)}
               />
 
               <div className="grid grid-cols-2 gap-2">
-                {q.options.map((opt, optIndex) => (
+                {question.options.map((option, optionIndex) => (
                   <input
-                    key={optIndex}
+                    key={optionIndex}
                     type="text"
-                    value={opt}
-                    onChange={(e) => handleOptionChange(index, optIndex, e.target.value)}
-                    required
-                    className="p-2 border rounded-md"
-                    placeholder={`Option ${optIndex + 1}`}
+                    className="border px-3 py-2 rounded"
+                    placeholder={`Option ${optionIndex + 1}`}
+                    value={option}
+                    onChange={(e) => handleQuestionChange(index, 'options', { optionIndex, optionValue: e.target.value })}
                   />
                 ))}
               </div>
 
               <input
                 type="text"
-                value={q.correctAnswer}
-                onChange={(e) => handleCorrectAnswerChange(index, e.target.value)}
-                required
-                className="w-full p-2 border rounded-md mt-2"
+                className="w-full border px-3 py-2 mt-2 rounded"
                 placeholder="Correct Answer"
+                value={question.correctAnswer}
+                onChange={(e) => handleQuestionChange(index, 'correctAnswer', e.target.value)}
               />
+
+              {questions.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeQuestion(index)}
+                  className="text-red-500 mt-2 hover:underline"
+                >
+                  Remove Question
+                </button>
+              )}
             </div>
           ))}
+
           <button
             type="button"
-            onClick={handleAddQuestion}
-            className="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md"
+            onClick={addQuestion}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Add Question
           </button>
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
-        >
-          Create Quiz
+        <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded font-bold hover:bg-green-700">
+          Submit Quiz
         </button>
       </form>
     </div>

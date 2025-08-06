@@ -15,7 +15,7 @@ const Login = () => {
     setError('');
     const result = await login(email, password);  
     if (result.success && result.user) {
-      navigate(result.user.role === 'admin' ? '/createQuiz' : '/');
+      navigate(result.user.role === 'admin' ? '/CreateTopic' : '/');
     } else {
       setError(result.message || 'Login failed. Please try again.');
     }
