@@ -32,27 +32,3 @@ module.exports = async (req, res, next) => {
     });
   }
 };
-
-// const User = require('../models/userModel');
-
-// module.exports = async (req, res, next) => {
-//   try {
-//     console.log('Admin middleware: Checking role for user', req.user._id);
-//     const user = await User.findById(req.user._id).select('role');
-//     if (!user || user.role !== 'admin') {
-//       console.log('Access denied: User role', user ? user.role : 'not found', 'for ID', req.user._id);
-//       return res.status(403).json({
-//         status: 'error',
-//         message: 'Access denied: Admin role required',
-//       });
-//     }
-//     console.log('Admin access granted for user', req.user._id);
-//     next();
-//   } catch (error) {
-//     console.error('Admin middleware error:', error.message);
-//     res.status(500).json({
-//       status: 'error',
-//       message: 'Server error while checking admin role',
-//     });
-//   }
-// };
