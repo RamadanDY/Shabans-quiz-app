@@ -14,12 +14,7 @@ const topicSchema = new mongoose.Schema({
     trim: true,
     maxlength: [500, 'Description cannot exceed 500 characters'],
   },
-  category: {
-    type: String,
-    required: [true, 'Category is required'],
-    trim: true,
-    default: 'Linear Algebra',
-  },
+   
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

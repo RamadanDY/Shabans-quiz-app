@@ -25,9 +25,9 @@ const getTopicById = asyncHandler(async (req, res) => {
 // @route   POST /api/topics
 // @access  Private/Admin
 const createTopic = asyncHandler(async (req, res) => {
-  const { name, description, category } = req.body;
+  const { name, description } = req.body;
 
-  if (!name || !description || !category) {
+  if (!name || !description ) {
     res.status(400);
     throw new Error('Please provide name, description, and category');
   }
@@ -41,17 +41,19 @@ const createTopic = asyncHandler(async (req, res) => {
   const topic = await Topic.create({
     name,
     description,
-    category,
     createdBy: req.user._id,
   });
 
   res.status(201).json({
+  success: true,
+  data: {
     _id: topic._id,
     name: topic.name,
     description: topic.description,
-    category: topic.category,
-    createdBy: topic.createdBy,
-  });
+    createdBy: topic.createdBy
+  }
+});
+
 });
 
 // @desc    Update a topic

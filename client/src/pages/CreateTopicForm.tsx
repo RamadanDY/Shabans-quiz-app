@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+const token = localStorage.getItem('token'); // from login
+if (!token) {
+  console.error('No token found in localStorage');
+}
 const CreateTopicForm = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -26,29 +29,29 @@ const CreateTopicForm = () => {
 
     try {
       const response = await fetch('http://localhost:5000/api/topics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`, // ✅ Send token
+  },
+  body: JSON.stringify(formData),
+});
 
       const result = await response.json();
-      if (response.ok) {
-        setMessage('Topic created successfully!');
-        setFormData({ name: '', description: '', createdBy: '' });
+      console.log("Navigating with:", result);
 
-        // Redirect to CreateQuiz with topicId and topicName
-        setTimeout(() => {
-          navigate('/CreateQuiz', {
-            state: {
-              topicId: result.data._id, // Ensure _id is from response.data
-              topicName: result.data.name,
-              topicDescription: result.data.description
-            }
-          });
-        }, 1000);
-      } else {
+      if (response.ok) {
+  setMessage('Topic created successfully!');
+  setFormData({ name: '', description: '', createdBy: '' });
+
+  navigate('/CreateQuiz', {
+    state: {
+      topicId: result._id,  // ✅ direct access
+      topicName: result.name,
+      topicDescription: result.description
+    }
+  });
+       } else {
         console.error('Error creating topic:', {
           message: result.message,
           status: response.status,
