@@ -50,6 +50,8 @@ export const AuthProvider = ({ children }) => {
         role,
       });
       localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user)); // ✅ right here
+
       setUser(response.data.data.user);
       return { success: true, user: response.data.data.user };
     } catch (error) {

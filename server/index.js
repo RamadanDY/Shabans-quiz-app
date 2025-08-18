@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', authRoutes);
-app.use('/api', questionRoutes);
+app.use('/api/questions', questionRoutes);
 app.use('/api/topics', topicRoutes);
 app.use('/api/quiz', quizResultRoutes);
 app.use('/api/quiz', createQuizRoutes); // Added quiz routes

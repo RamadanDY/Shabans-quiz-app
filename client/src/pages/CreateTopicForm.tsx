@@ -52,7 +52,7 @@ const CreateTopicForm = () => {
     }
   });
        } else {
-        console.error('Error creating topic:', {
+        console.error('Error creating  topics:', {
           message: result.message,
           status: response.status,
           data: result

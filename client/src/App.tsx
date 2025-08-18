@@ -15,17 +15,26 @@ import CreateTopicForm from '@/pages/CreateTopicForm';
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  console.log('ProtectedRoute check:', { tokenExists: !!token, userRole: user.role, requireAdmin }); // Debug log
+
+  console.log('ProtectedRoute check:', {
+    tokenExists: !!token,
+    userRole: user.role,
+    requireAdmin
+  });
+
   if (!token) {
     console.log('No token, redirecting to /login');
     return <Navigate to="/login" state={{ from: window.location.pathname }} />;
   }
+
   if (requireAdmin && user.role !== 'admin') {
     console.log('Non-admin user, redirecting to /:', user.role);
     return <Navigate to="/" />;
   }
+
   return children;
 };
+
 
 function App() {
   return (
@@ -37,7 +46,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/topics" element={<Topics />} />
+          <Route path="/Topics" element={<Topics />} />
           <Route path="/CreateQuiz" element={<CreateQuiz />} />
           <Route path="/CreateTopic" element={<CreateTopicForm />} />
 
@@ -65,14 +74,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* <Route
-            path="/CreateTopic"
-            element={
-              <ProtectedRoute requireAdmin>
-                <CreateTopicForm />
-              </ProtectedRoute>
-            }
-          /> */}
+          
         </Routes>
       </Router>
     </AuthProvider>

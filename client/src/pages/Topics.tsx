@@ -1,8 +1,9 @@
  import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+
 
 const Topics = () => {
   const navigate = useNavigate();
@@ -17,10 +18,10 @@ const Topics = () => {
       setError('');
       try {
         const response = await axios.get('http://localhost:5000/api/topics');
-        setTopics(response.data.data);
+        setTopics(response.data);
       } catch (err) {
         setError('Failed to load topics. Please try again.');
-      } finally {
+      }  finally {
         setLoading(false);
       }
     };
@@ -28,9 +29,9 @@ const Topics = () => {
   }, []);
 
   const handleTopicSelect = (topic) => {
-  console.log('Selected topic:', topic);
-  setSelectedTopic(topic);
-};
+    console.log('Selected topic:', topic);
+    setSelectedTopic(topic);
+  };
 
   const handleStartQuiz = () => {
     if (selectedTopic) {
@@ -40,11 +41,12 @@ const Topics = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Background mathematical symbols */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div className="absolute top-10 left-10 text-6xl text-gray-300 font-math">π</div>
-        <div className="absolute bottom-20 right-20 text-5xl text-gray-300 font-math">Σ</div>
-        <div className="absolute top-1/3 left-1/4 text-4xl text-gray-300 font-math">∞</div>
-        <div className="absolute bottom-1/3 right-1/4 text-5xl text-gray-300 font-math">∫</div>
+        <div className="absolute top-10 left-10 text-6xl text-gray-300 font-roboto-slab">π</div>
+        <div className="absolute bottom-20 right-20 text-5xl text-gray-300 font-roboto-slab">Σ</div>
+        <div className="absolute top-1/3 left-1/4 text-4xl text-gray-300 font-roboto-slab">∞</div>
+        <div className="absolute bottom-1/3 right-1/4 text-5xl text-gray-300 font-roboto-slab">∫</div>
       </div>
 
       <div className="max-w-4xl w-full z-10">
@@ -61,8 +63,8 @@ const Topics = () => {
             {topics.map((topic) => (
               <Card
                 key={topic._id}
-                className={`cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                  selectedTopic === topic.name ? 'border-blue-600 border-2' : ''
+                className={`cursor-pointer transition-all duration-300 hover:scale-105 ${
+                  selectedTopic === topic.name ? 'border-2 border-blue-600' : ''
                 }`}
                 onClick={() => handleTopicSelect(topic.name)}
               >
@@ -79,27 +81,13 @@ const Topics = () => {
         <div className="mt-8 text-center">
           <Button
             onClick={handleStartQuiz}
-            className="bg-blue-600 text-white px-8 py-3 text-lg rounded-md hover:bg-blue-700 disabled:opacity-50 transition-all duration-300 transform hover:scale-105"
+            className="bg-blue-600 text-white px-8 py-3 text-lg rounded-md hover:bg-blue-700 disabled:opacity-50 transition-all duration-300 hover:scale-105"
             disabled={!selectedTopic || loading}
           >
             Start Quiz
           </Button>
         </div>
       </div>
-
-      <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
-        .font-math {
-          font-family: 'Roboto Slab', serif;
-        }
-        .animate-fade-in {
-          animation: fadeIn 1s ease-in-out;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 };
