@@ -1,40 +1,42 @@
- import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import Navbar from '@/components/navbar';
-import Home from '@/pages/Home';
-import About from '@/pages/About';
-import QuizApp from '@/pages/QuizApp';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import Topics from '@/pages/Topics';
-import Results from '@/pages/Results';
-import Dashboard from '@/pages/Dashboard';
-import CreateQuiz from '@/pages/CreateQuiz';
-import CreateTopicForm from '@/pages/CreateTopicForm';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Navbar from "@/components/navbar";
+import Home from "@/pages/Home";
+import About from "@/pages/About";
+import QuizApp from "@/pages/QuizApp";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import Topics from "@/pages/Topics";
+import Results from "@/pages/Results";
+import Dashboard from "@/pages/Dashboard";
+import CreateQuiz from "@/pages/CreateQuiz";
+import CreateTopicForm from "@/pages/CreateTopicForm";
 
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const stored = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = stored.data?.user || {};
 
-  console.log('ProtectedRoute check:', {
+  console.log("ProtectedRoute check:", {
     tokenExists: !!token,
     userRole: user.role,
-    requireAdmin
+    requireAdmin,
   });
 
   if (!token) {
-    console.log('No token, redirecting to /login');
+    console.log("No token, redirecting to /login");
     return <Navigate to="/login" state={{ from: window.location.pathname }} />;
   }
-
-  if (requireAdmin && user.role !== 'admin') {
-    console.log('Non-admin user, redirecting to /:', user.role);
+  if (requireAdmin && user.role?.toLowerCase() !== "admin") {
     return <Navigate to="/" />;
   }
 
   return children;
 };
-
 
 function App() {
   return (
@@ -53,7 +55,7 @@ function App() {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin={true}>
                 <Dashboard />
               </ProtectedRoute>
             }
@@ -74,7 +76,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
         </Routes>
       </Router>
     </AuthProvider>
